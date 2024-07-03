@@ -1,8 +1,10 @@
 import pyodbc
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired
+import os
+import pyodbc
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'SecureSecretKey'
@@ -236,6 +238,128 @@ def four():
     return render_template('form4.html')
 
 
+
+class FoodForm(FlaskForm):
+    command = SelectField(label='Command:', choices=[('add', 'Add'), ('delete', 'Delete'), ('modify', 'Modify')], validators=[DataRequired()])
+    food_name = StringField(label='Food Name:', validators=[DataRequired()])
+    quantity = IntegerField(label='Quantity:', validators=[DataRequired()])
+    price = IntegerField(label='Price:', validators=[DataRequired()])
+    submit = SubmitField(label='Submit')
+
+@app.route('/manage_food', methods=['GET', 'POST'])
+def manage_food():
+    form = FoodForm()
+    result = None
+
+    if form.validate_on_submit():
+        command = form.command.data
+        food_name = form.food_name.data
+        quantity = form.quantity.data
+        price = form.price.data
+
+        try:
+            conn = connection()
+            cursor = conn.cursor()
+
+            if command == 'add':
+                cursor.execute('INSERT INTO food (food, quantity, price) VALUES (?, ?, ?)', (food_name, quantity, price))
+            elif command == 'delete':
+                cursor.execute('DELETE FROM food WHERE food = ?', (food_name,))
+            elif command == 'modify':
+                cursor.execute('UPDATE food SET quantity = ?, price = ? WHERE food = ?', (quantity, price, food_name))
+
+            conn.commit()
+
+            cursor.execute('SELECT * FROM food')
+            result = cursor.fetchall()
+        except Exception as e:
+            return render_template('manage_food.html', form=form, error=str(e))
+
+    return render_template('manage_food.html', form=form, result=result)
+
+class TopNForm(FlaskForm):
+    n_value = IntegerField(label='Enter N:', validators=[DataRequired()])
+    submit = SubmitField(label='Submit')
+
+@app.route('/top_n_food', methods=['GET', 'POST'])
+def top_n_food():
+    form = TopNForm()
+    result = None
+
+    if form.validate_on_submit():
+        n_value = form.n_value.data
+
+        try:
+            conn = connection()
+            cursor = conn.cursor()
+            query = f'SELECT TOP {n_value} food, quantity FROM food ORDER BY quantity DESC'
+            cursor.execute(query)
+            result = cursor.fetchall()
+        except Exception as e:
+            return render_template('top_n_food.html', form=form, error=str(e))
+
+    return render_template('top_n_food.html', form=form, result=result)
+
+class TopNPriceForm(FlaskForm):
+    n_value = IntegerField(label='Enter N:', validators=[DataRequired()])
+    submit = SubmitField(label='Submit')
+
+@app.route('/top_n_price_food', methods=['GET', 'POST'])
+def top_n_price_food():
+    form = TopNPriceForm()
+    result = None
+
+    if form.validate_on_submit():
+        n_value = form.n_value.data
+
+        try:
+            conn = connection()
+            cursor = conn.cursor()
+            query = f'SELECT TOP {n_value} food, price FROM food ORDER BY price DESC'
+            cursor.execute(query)
+            result = cursor.fetchall()
+        except Exception as e:
+            return render_template('top_n_price_food.html', form=form, error=str(e))
+
+    return render_template('top_n_price_food.html', form=form, result=result)
+
+class AddPointForm(FlaskForm):
+    x_value = IntegerField(label='X Value:', validators=[DataRequired()])
+    y_value = IntegerField(label='Y Value:', validators=[DataRequired()])
+    quantity = IntegerField(label='Quantity:', validators=[DataRequired()])
+    submit = SubmitField(label='Add Point')
+
+@app.route('/scatter_chart', methods=['GET', 'POST'])
+def scatter_chart():
+    form = AddPointForm()
+    result = None
+
+    if form.validate_on_submit():
+        x_value = form.x_value.data
+        y_value = form.y_value.data
+        quantity = form.quantity.data
+
+        try:
+            conn = connection()
+            cursor = conn.cursor()
+            cursor.execute('INSERT INTO points (x, y, quantity) VALUES (?, ?, ?)', (x_value, y_value, quantity))
+            conn.commit()
+
+            cursor.execute('SELECT x, y, quantity FROM points')
+            result = cursor.fetchall()
+        except Exception as e:
+            return render_template('scatter_chart.html', form=form, error=str(e))
+
+    else:
+        try:
+            conn = connection()
+            cursor = conn.cursor()
+            cursor.execute('SELECT x, y, quantity FROM points')
+            result = cursor.fetchall()
+        except Exception as e:
+            return render_template('scatter_chart.html', form=form, error=str(e))
+
+    return render_template('scatter_chart.html', form=form, result=result)
 
 
 if __name__ == "__main__":

@@ -207,3 +207,36 @@ select:focus {
     box-shadow: 0 0 10px 0 rgba(0,0,0,0.2);
 }
 
+/* static/styles.css */
+.form-label {
+    font-weight: bold;
+    color: #ff5500; /* Green */
+}
+
+.form-control {
+    border: 2px solid #2cb1d2;
+    border-radius: 4px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    background-color: #ff5500; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: white;
+    color: black;
+    border: 2px solid #2cb1d2;
+}

@@ -1,0 +1,76 @@
+
+{% extends "base.html" %}
+{% block title %}Top N Food Entries{% endblock %}
+{% block content %}
+    <div class="container-fluid py-5">
+        <div class="form-group">
+            <form action="/top_n_food" method="POST" class="mb-3">
+                {{ form.csrf_token() }}
+                <div class="mb-3">
+                    {{ form.n_value.label(class="form-label") }}
+                    {{ form.n_value(class="form-control") }}
+                </div>
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+        {% if result %}
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">Top {{ form.n_value.data }} Food Entries by Quantity</h4>
+                <div id="chart_div"></div>
+            </div>
+
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <script type="text/javascript">
+                google.charts.load('current', {'packages':['corechart']});
+                google.charts.setOnLoadCallback(drawChart);
+
+                function drawChart() {
+                    var data = google.visualization.arrayToDataTable([
+                        ['Food', 'Quantity'],
+                        {% for row in result %}
+                            ['{{ row.food }}', {{ row.quantity }}],
+                        {% endfor %}
+                    ]);
+
+                    var options = {
+                        title: 'Top {{ form.n_value.data }} Food Entries by Quantity',
+                        pieSliceText: 'value',
+                        legend: { position: 'top', alignment: 'center' },
+                        pieSliceTextStyle: {
+                            color: 'black',
+                        },
+                        slices: {
+                            0: { color: '#8ecae6' },
+                            1: { color: '#219ebc' },
+                            2: { color: '#023047' },
+                            3: { color: '#ffb703' },
+                            4: { color: '#fb8500' },
+                            5: { color: '#000000' }
+                        }
+                    };
+
+                    var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+                    chart.draw(data, options);
+
+                   
+function resize () {
+    var chartDiv = document.getElementById('chart_div');
+    var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+    chartDiv.style.width = window.innerWidth+'px';
+    chartDiv.style.height = viewHeight+'px';
+    chart.draw(data, options);
+}
+
+window.onload = resize();
+window.onresize = resize;
+
+                }
+            </script>
+        {% endif %}
+    </div>
+{% endblock %}

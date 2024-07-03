@@ -1,0 +1,57 @@
+
+{% extends "base.html" %}
+{% block title %}Manage Food{% endblock %}
+{% block content %}
+    <div class="container-fluid py-5">
+        <div class="form-group">
+            <form action="/manage_food" method="POST" class="mb-3">
+                {{ form.csrf_token() }}
+                <div class="mb-3">
+                    {{ form.command.label(class="form-label") }}
+                    {{ form.command(class="form-select") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.food_name.label(class="form-label") }}
+                    {{ form.food_name(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.quantity.label(class="form-label") }}
+                    {{ form.quantity(class="form-control") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.price.label(class="form-label") }}
+                    {{ form.price(class="form-control") }}
+                </div>
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+        {% if result %}
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">Updated Food Table</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Food</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in result %}
+                            <tr>
+                                <td>{{ row.food }}</td>
+                                <td>{{ row.quantity }}</td>
+                                <td>{{ row.price }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
