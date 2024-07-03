@@ -33,17 +33,14 @@
                     var data = google.visualization.arrayToDataTable([
                         ['Food', 'Quantity'],
                         {% for row in result %}
-                            ['{{ row.food }}', {{ row.quantity }}],
+                            ['{{ row.food }} ({{ row.quantity }})', {{ row.quantity }}],
                         {% endfor %}
                     ]);
 
                     var options = {
                         title: 'Top {{ form.n_value.data }} Food Entries by Quantity',
-                        pieSliceText: 'value',
                         legend: { position: 'top', alignment: 'center' },
-                        pieSliceTextStyle: {
-                            color: 'black',
-                        },
+                        pieSliceText: 'none',
                         slices: {
                             0: { color: '#8ecae6' },
                             1: { color: '#219ebc' },
@@ -57,18 +54,16 @@
                     var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
                     chart.draw(data, options);
 
-                   
-function resize () {
-    var chartDiv = document.getElementById('chart_div');
-    var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-    chartDiv.style.width = window.innerWidth+'px';
-    chartDiv.style.height = viewHeight+'px';
-    chart.draw(data, options);
-}
+                    function resize () {
+                        var chartDiv = document.getElementById('chart_div');
+                        var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+                        chartDiv.style.width = window.innerWidth+'px';
+                        chartDiv.style.height = viewHeight+'px';
+                        chart.draw(data, options);
+                    }
 
-window.onload = resize();
-window.onresize = resize;
-
+                    window.onload = resize();
+                    window.onresize = resize;
                 }
             </script>
         {% endif %}

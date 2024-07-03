@@ -33,7 +33,8 @@
                     var data = google.visualization.arrayToDataTable([
                         ['Food', 'Price', { role: 'style' }, { role: 'annotation' }],
                         {% for row in result %}
-                            ['{{ row.food }}', {{ row.price }}, 'color: #76A7FA', '{{ row.price }}'],
+                        ['{{ row.food }} ({{ row.price }})', {{ row.price }}, 'color: #76A7FA', '{{ row.price }}'],
+                        
                         {% endfor %}
                     ]);
 
